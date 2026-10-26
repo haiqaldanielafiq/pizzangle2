@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIZZANGLE - Master Pie Charts & Percentages!</title>
+  <style>
+    :root {
+      --ph-red: #E11718;
+      --ph-red-dark: #B30F10;
+      --ph-black: #111111;
+      --ph-dark-gray: #1E1E1E;
+      --ph-light-gray: #F4F4F6;
+      --ph-gold: #FFC72C;
+      --ph-gold-dark: #D9A200;
+      --ph-green: #28A745;
+      --ph-white: #FFFFFF;
+      --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--ph-black);
+      color: var(--ph-white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* Top Roof Bar - Pizza Hut Inspired */
+    .header-roof {
+      width: 100%;
+      background: var(--ph-red);
+      border-bottom: 5px solid var(--ph-gold);
+      box-shadow: 0 4px 15px rgba(225, 23, 24, 0.4);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pizza-roof-logo {
+      width: 42px;
+      height: 42px;
+      background: var(--ph-white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--ph-gold);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .brand-title {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: var(--ph-white);
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0px var(--ph-black);
+    }
+
+    .brand-title span {
+      color: var(--ph-gold);
+    }
+
+    .game-stats {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .lives-container {
+      display: flex;
+      gap: 4px;
+    }
+
+    .life-icon {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .life-icon.lost {
+      opacity: 0.25;
+      transform: scale(0.8);
+      filter: grayscale(1);
+    }
+
+    .icon-btn {
+      background: var(--ph-gold);
+      color: var(--ph-black);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      transform: scale(1.1);
+      background: var(--ph-white);
+    }
+
+    /* Main Game Layout */
+    .main-container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      flex: 1;
+    }
+
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Side Panel: Mascot Boy Pizzangle & Progress */
+    .sidebar {
+      background: var(--ph-dark-gray);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .mascot-card {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .mascot-avatar {
+      width: 180px;
+      height: 180px;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .speech-bubble {
+      background: var(--ph-white);
+      color: var(--ph-black);
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-top: 15px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      font-weight: 600;
+      width: 100%;
+      border-left: 5px solid var(--ph-red);
+    }
+
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 10px 12px 10px;
+      border-style: solid;
+      border-color: transparent transparent var(--ph-white) transparent;
+    }
+
+    .mascot-name {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--ph-gold);
+      font-weight: 800;
+    }
+
+    /* Mission Progress Tracker */
+    .mission-nav {
+      width: 100%;
+      margin-top: 25px;
+    }
+
+    .nav-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .mission-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mission-step-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .mission-step-btn.active {
+      background: var(--ph-red);
+      color: var(--ph-white);
+      border-color: var(--ph-gold);
+      box-shadow: 0 4px 12px rgba(225, 23, 24, 0.3);
+    }
+
+    .mission-step-btn.completed {
+      background: rgba(40, 167, 69, 0.2);
+      color: #28a745;
+      border-color: #28a745;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .active .step-num {
+      background: var(--ph-gold);
+      color: var(--ph-black);
+    }
+
+    /* Main Gameplay Area */
+    .gameplay-card {
+      background: var(--ph-dark-gray);
+      border-radius: 16px;
+      padding: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .mission-header {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mission-badge {
+      background: var(--ph-gold);
+      color: var(--ph-black);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .mission-title {
+      font-size: 1.4rem;
+      color: var(--ph-white);
+      font-weight: 800;
+    }
+
+    /* Interactive Canvas & Controls Grid */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pizza-display-container {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 320px;
+    }
+
+    svg.pizza-svg {
+      max-width: 300px;
+      max-height: 300px;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+    }
+
+    .protractor-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0.25;
+      transition: opacity 0.3s ease;
+    }
+
+    .show-protractor .protractor-overlay {
+      opacity: 0.7;
+    }
+
+    /* Controls & Question Box */
+    .task-box {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .question-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid var(--ph-gold);
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .question-card h3 {
+      font-size: 1.05rem;
+      color: var(--ph-gold);
+      margin-bottom: 6px;
+    }
+
+    .question-card p {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: #ddd;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #bbb;
+      text-transform: uppercase;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: #444;
+      outline: none;
+      accent-color: var(--ph-red);
+      cursor: pointer;
+    }
+
+    .value-pill {
+      background: var(--ph-gold);
+      color: var(--ph-black);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .option-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--ph-white);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .option-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--ph-gold);
+      transform: translateY(-2px);
+    }
+
+    .option-btn.selected {
+      border-color: var(--ph-gold);
+      background: rgba(255, 199, 44, 0.15);
+    }
+
+    .btn-submit {
+      background: var(--ph-red);
+      color: var(--ph-white);
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(225, 23, 24, 0.4);
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: var(--ph-red-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(225, 23, 24, 0.6);
+    }
+
+    .btn-submit:disabled {
+      background: #555;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Explanation & Feedback Popover */
+    .feedback-banner {
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 10px;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-banner.correct {
+      background: rgba(40, 167, 69, 0.2);
+      border: 2px solid var(--ph-green);
+      color: #2ecc71;
+    }
+
+    .feedback-banner.incorrect {
+      background: rgba(225, 23, 24, 0.2);
+      border: 2px solid var(--ph-red);
+      color: #ff6b6b;
+    }
+
+    .feedback-title {
+      font-weight: 800;
+      font-size: 1.05rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feedback-text {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: var(--ph-white);
+    }
+
+    .btn-next {
+      background: var(--ph-gold);
+      color: var(--ph-black);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 800;
+      margin-top: 10px;
+      cursor: pointer;
+      float: right;
+    }
+
+    /* Concept Callout Box */
+    .concept-box {
+      background: rgba(255, 199, 44, 0.1);
+      border: 1px dashed var(--ph-gold);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: #ffe699;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .concept-box .icon {
+      font-size: 1.3rem;
+    }
+
+    /* Victory Modal / Screen */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .certificate-card {
+      background: var(--ph-dark-gray);
+      border: 4px solid var(--ph-gold);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 550px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(255, 199, 44, 0.3);
+      position: relative;
+    }
+
+    .certificate-title {
+      font-size: 2rem;
+      color: var(--ph-gold);
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .certificate-subtitle {
+      font-size: 1.1rem;
+      color: var(--ph-white);
+      margin-bottom: 20px;
+    }
+
+    .badge-icon {
+      font-size: 4rem;
+      margin: 15px 0;
+    }
+
+    .cert-stats {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0,0,0,0.4);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+
+    .cert-stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--ph-gold);
+    }
+
+    .cert-stat-lbl {
+      font-size: 0.8rem;
+      color: #aaa;
+      text-transform: uppercase;
+    }
+
+    .btn-restart {
+      background: var(--ph-red);
+      color: var(--ph-white);
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(225, 23, 24, 0.5);
+    }
+
+    .btn-restart:hover {
+      background: var(--ph-red-dark);
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Roof Header -->
+  <header class="header-roof">
+    <div class="brand-container">
+      <div class="pizza-roof-logo">
+        <svg width="28" height="28" viewBox="0 0 100 100">
+          <path d="M50 5 L90 85 L10 85 Z" fill="#E11718" />
+          <circle cx="50" cy="55" r="12" fill="#FFC72C" />
+          <circle cx="35" cy="70" r="6" fill="#B30F10" />
+          <circle cx="65" cy="70" r="6" fill="#B30F10" />
+        </svg>
+      </div>
+      <div class="brand-title">PIZZ<span>ANGLE</span></div>
+    </div>
+
+    <div class="game-stats">
+      <div class="stat-item">
+        <span>🍕 LIVES:</span>
+        <div class="lives-container" id="livesDisplay">
+          <span class="life-icon">🍕</span>
+          <span class="life-icon">🍕</span>
+          <span class="life-icon">🍕</span>
+          <span class="life-icon">🍕</span>
+          <span class="life-icon">🍕</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span>⭐ SCORE:</span>
+        <span id="scoreDisplay" style="color: var(--ph-gold);">0</span>
+      </div>
+      <button class="icon-btn" id="soundBtn" title="Toggle Sound">🔊</button>
+      <button class="icon-btn" id="restartBtn" title="Restart Game">🔄</button>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="main-container">
+
+    <!-- Sidebar: Mascot Boy Pizzangle & Missions -->
+    <aside class="sidebar">
+      <div class="mascot-card">
+        <!-- SVG Mascot: Boy Pizzangle -->
+        <svg class="mascot-avatar" id="mascotSvg" viewBox="0 0 200 200">
+          <!-- Delivery Cap -->
+          <path d="M 40 65 Q 100 20 160 65 L 175 75 L 25 75 Z" fill="#E11718" />
+          <path d="M 20 75 Q 100 60 180 75 L 185 83 L 15 83 Z" fill="#FFC72C" />
+          <!-- Head -->
+          <circle cx="100" cy="110" r="45" fill="#FFE0BD" />
+          <!-- Eyes -->
+          <g id="mascotEyes">
+            <circle cx="85" cy="105" r="6" fill="#111" />
+            <circle cx="115" cy="105" r="6" fill="#111" />
+            <circle cx="87" cy="103" r="2" fill="#FFF" />
+            <circle cx="117" cy="103" r="2" fill="#FFF" />
+          </g>
+          <!-- Cheeks -->
+          <circle cx="75" cy="115" r="7" fill="#FF8A8A" opacity="0.6" />
+          <circle cx="125" cy="115" r="7" fill="#FF8A8A" opacity="0.6" />
+          <!-- Mouth -->
+          <path id="mascotMouth" d="M 85 125 Q 100 140 115 125" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
+          <!-- Shirt/Apron -->
+          <path d="M 55 152 Q 100 140 145 152 L 160 200 L 40 200 Z" fill="#E11718" />
+          <path d="M 75 150 L 125 150 L 130 200 L 70 200 Z" fill="#FFFFFF" />
+          <!-- Mini Pizza Logo on Apron -->
+          <polygon points="100,160 112,185 88,185" fill="#FFC72C" />
+          <circle cx="100" cy="175" r="3" fill="#E11718" />
+        </svg>
+
+        <div class="mascot-name">BOY PIZZANGLE</div>
+        <div class="speech-bubble" id="mascotSpeech">
+          Welcome to Pizza Hut Pizzangle! I'm Boy Pizzangle. Let's master pie charts and percentages together! Remember: A full pizza circle is 360°, which equals 100%!
+        </div>
+      </div>
+
+      <!-- Mission Navigation -->
+      <div class="mission-nav">
+        <div class="nav-title">Missions Journey</div>
+        <div class="mission-steps" id="missionNavSteps">
+          <button class="mission-step-btn active" data-mission="1">
+            <span class="step-num">1</span> Slice & Match (360° = 100%)
+          </button>
+          <button class="mission-step-btn" data-mission="2">
+            <span class="step-num">2</span> Angle-Percent Converter
+          </button>
+          <button class="mission-step-btn" data-mission="3">
+            <span class="step-num">3</span> Misconception Busters
+          </button>
+          <button class="mission-step-btn" data-mission="4">
+            <span class="step-num">4</span> Pie Chart Inspector
+          </button>
+          <button class="mission-step-btn" data-mission="5">
+            <span class="step-num">5</span> Master Pizzaiolo
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Stage: Interactive Workspace -->
+    <section class="gameplay-card">
+      <div class="mission-header">
+        <div>
+          <span class="mission-badge" id="missionBadge">MISSION 1 OF 5</span>
+          <h2 class="mission-title" id="missionTitle">Slice & Match: The Full Circle Rule</h2>
+        </div>
+        <button class="icon-btn" id="protractorToggleBtn" title="Toggle Protractor Overlay">📐</button>
+      </div>
+
+      <div class="workspace">
+        <!-- Interactive Pizza & Pie Chart Canvas Area -->
+        <div class="pizza-display-container" id="pizzaDisplayBox">
+          <svg class="pizza-svg" id="pizzaSvg" viewBox="0 0 300 300">
+            <!-- Slices generated by JS -->
+          </svg>
+          <!-- Protractor Overlay SVG -->
+          <svg class="protractor-overlay" id="protractorOverlay" width="280" height="280" viewBox="0 0 300 300">
+            <circle cx="150" cy="150" r="135" fill="none" stroke="#FFC72C" stroke-width="1.5" stroke-dasharray="4,4" />
+            <!-- Angle Tick marks generated dynamically -->
+            <g id="protractorTicks"></g>
+          </svg>
+        </div>
+
+        <!-- Task & Controls Area -->
+        <div class="task-box" id="taskBox">
+          <!-- Dynamic Task Content injected via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Feedback Banner -->
+      <div class="feedback-banner" id="feedbackBanner">
+        <div class="feedback-title" id="feedbackTitle"></div>
+        <div class="feedback-text" id="feedbackText"></div>
+        <button class="btn-next" id="btnNext" style="display: none;">CONTINUE ➔</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Final Victory / Certificate Modal -->
+  <div class="modal-overlay" id="victoryModal">
+    <div class="certificate-card">
+      <div class="certificate-title">CONGRATULATIONS!</div>
+      <div class="certificate-subtitle">OFFICIAL MASTER PIZZAIOLO CERTIFICATE</div>
+      <div class="badge-icon">🍕🏆🎓</div>
+      <p style="color: #ddd; line-height: 1.5; font-size: 1rem;">
+        You have successfully debunked angle-percentage misconceptions! You proved that:
+      </p>
+      <div style="background: rgba(255,199,44,0.15); border-left: 4px solid var(--ph-gold); padding: 10px; margin: 15px 0; text-align: left; font-size: 0.9rem;">
+        • <strong>360°</strong> represents the whole circle (<strong>100%</strong>).<br>
+        • Every <strong>1%</strong> equals <strong>3.6°</strong> ($360^\circ \div 100$).<br>
+        • <strong>180° = 50%</strong>, <strong>90° = 25%</strong>, and <strong>36° = 10%</strong>.<br>
+        • Pie chart angles represent <em>proportions</em>, not physical size or counts alone!
+      </div>
+      <div class="cert-stats">
+        <div>
+          <div class="cert-stat-val" id="finalScoreVal">0</div>
+          <div class="cert-stat-lbl">Final Score</div>
+        </div>
+        <div>
+          <div class="cert-stat-val" id="finalLivesVal">5/5</div>
+          <div class="cert-stat-lbl">Lives Left</div>
+        </div>
+        <div>
+          <div class="cert-stat-val">MASTER</div>
+          <div class="cert-stat-lbl">Rank</div>
+        </div>
+      </div>
+      <button class="btn-restart" id="modalRestartBtn">PLAY AGAIN 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. WEB AUDIO SYNTHESIZER (Sound Effects)
+       ========================================================================== */
+    class SoundEffects {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+
+      playTone(freq, type, duration, delay = 0) {
+        if (this.muted || !this.ctx) return;
+        setTimeout(() => {
+          try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+          } catch(e) {}
+        }, delay);
+      }
+
+      playClick() {
+        this.init();
+        this.playTone(600, 'sine', 0.05);
+      }
+
+      playCorrect() {
+        this.init();
+        // C Major triad chord arpeggio (C5, E5, G5, C6)
+        this.playTone(523.25, 'triangle', 0.15, 0);
+        this.playTone(659.25, 'triangle', 0.15, 80);
+        this.playTone(783.99, 'triangle', 0.15, 160);
+        this.playTone(1046.50, 'triangle', 0.3, 240);
+      }
+
+      playWrong() {
+        this.init();
+        this.playTone(220, 'sawtooth', 0.2, 0);
+        this.playTone(180, 'sawtooth', 0.3, 100);
+      }
+
+      playVictory() {
+        this.init();
+        const notes = [523.25, 659.25, 783.99, 1046.50, 880, 1046.50];
+        notes.forEach((freq, idx) => {
+          this.playTone(freq, 'triangle', 0.25, idx * 120);
+        });
+      }
+    }
+
+    const sound = new SoundEffects();
+
+    /* ==========================================================================
+       2. GAME STATE MANAGEMENT
+       ========================================================================== */
+    const state = {
+      score: 0,
+      lives: 5,
+      currentMission: 1,
+      currentSubQuestion: 0,
+      showProtractor: false,
+      selectedAnswer: null,
+      missionData: {}
+    };
+
+    /* ==========================================================================
+       3. MASCOT CONTROLLER
+       ========================================================================== */
+    const mascot = {
+      setMood(mood) {
+        const mouth = document.getElementById('mascotMouth');
+        const eyes = document.getElementById('mascotEyes');
+        const avatar = document.getElementById('mascotSvg');
+
+        avatar.style.transform = 'scale(1.05)';
+        setTimeout(() => avatar.style.transform = 'scale(1)', 300);
+
+        if (mood === 'happy' || mood === 'celebrating') {
+          mouth.setAttribute('d', 'M 80 125 Q 100 150 120 125 Z');
+          mouth.setAttribute('fill', '#111');
+        } else if (mood === 'shocked' || mood === 'wrong') {
+          mouth.setAttribute('d', 'M 90 130 A 10 10 0 1 0 110 130 A 10 10 0 1 0 90 130');
+          mouth.setAttribute('fill', '#111');
+        } else if (mood === 'thinking') {
+          mouth.setAttribute('d', 'M 85 130 L 115 130');
+          mouth.setAttribute('fill', 'none');
+        } else { // default neutral smile
+          mouth.setAttribute('d', 'M 85 125 Q 100 140 115 125');
+          mouth.setAttribute('fill', 'none');
+        }
+      },
+
+      speak(text) {
+        document.getElementById('mascotSpeech').innerHTML = text;
+      }
+    };
+
+    /* ==========================================================================
+       4. SVG PIZZA / PIE CHART RENDERING ENGINE
+       ========================================================================== */
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+      return {
+        x: centerX + (radius * Math.cos(angleInRadians)),
+        y: centerY + (radius * Math.sin(angleInRadians))
+      };
+    }
+
+    function createSectorPath(x, y, radius, startAngle, endAngle) {
+      const start = polarToCartesian(x, y, radius, endAngle);
+      const end = polarToCartesian(x, y, radius, startAngle);
+      const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+      if (endAngle - startAngle >= 360) {
+        return `M ${x - radius} ${y} A ${radius} ${radius} 0 1 0 ${x + radius} ${y} A ${radius} ${radius} 0 1 0 ${x - radius} ${y}`;
+      }
+
+      return [
+        "M", x, y,
+        "L", start.x, start.y,
+        "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+        "Z"
+      ].join(" ");
+    }
+
+    function renderPizzaSlices(slices) {
+      const svg = document.getElementById('pizzaSvg');
+      svg.innerHTML = ''; // clear
+
+      const cx = 150, cy = 150, r = 125;
+      let currentAngle = 0;
+
+      // Draw Crust Backing
+      const outerCrust = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      outerCrust.setAttribute("cx", cx);
+      outerCrust.setAttribute("cy", cy);
+      outerCrust.setAttribute("r", r + 6);
+      outerCrust.setAttribute("fill", "#C87D32");
+      svg.appendChild(outerCrust);
+
+      const colors = ['#E11718', '#FFC72C', '#28A745', '#9B59B6', '#E67E22', '#3498DB'];
+
+      slices.forEach((slice, idx) => {
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + slice.angle;
+        currentAngle = endAngle;
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const pathData = createSectorPath(cx, cy, r, startAngle, endAngle);
+        path.setAttribute("d", pathData);
+        path.setAttribute("fill", slice.color || colors[idx % colors.length]);
+        path.setAttribute("stroke", "#FFFFFF");
+        path.setAttribute("stroke-width", "2");
+        path.style.cursor = slice.clickable ? "pointer" : "default";
+
+        if (slice.selected) {
+          path.setAttribute("fill", "#FFD700");
+          path.setAttribute("stroke", "#E11718");
+          path.setAttribute("stroke-width", "4");
+        }
+
+        if (slice.onClick) {
+          path.onclick = slice.onClick;
+        }
+
+        svg.appendChild(path);
+
+        // Render Topping Dots on Cheese Slices
+        if (slice.angle > 15) {
+          const midAngle = startAngle + (slice.angle / 2);
+          const topPos = polarToCartesian(cx, cy, r * 0.6, midAngle);
+
+          const topping = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          topping.setAttribute("cx", topPos.x);
+          topping.setAttribute("cy", topPos.y);
+          topping.setAttribute("r", "8");
+          topping.setAttribute("fill", "#B30F10");
+          topping.setAttribute("pointer-events", "none");
+          svg.appendChild(topping);
+
+          // Angle & Percentage Label Text
+          if (slice.showLabel !== false) {
+            const labelPos = polarToCartesian(cx, cy, r * 0.75, midAngle);
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", labelPos.x);
+            text.setAttribute("y", labelPos.y);
+            text.setAttribute("fill", "#FFFFFF");
+            text.setAttribute("font-size", slice.angle < 30 ? "10" : "12");
+            text.setAttribute("font-weight", "bold");
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "central");
+            text.setAttribute("pointer-events", "none");
+
+            const labelStr = slice.labelText || `${Math.round(slice.angle)}° (${Math.round((slice.angle/3.6)*10)/10}%)`;
+            text.textContent = labelStr;
+            svg.appendChild(text);
+          }
+        }
+      });
+    }
+
+    function renderProtractorTicks() {
+      const ticksGroup = document.getElementById('protractorTicks');
+      ticksGroup.innerHTML = '';
+      const cx = 150, cy = 150, r = 135;
+
+      for (let deg = 0; deg < 360; deg += 30) {
+        const p1 = polarToCartesian(cx, cy, r - 8, deg);
+        const p2 = polarToCartesian(cx, cy, r, deg);
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", p1.x);
+        line.setAttribute("y1", p1.y);
+        line.setAttribute("x2", p2.x);
+        line.setAttribute("y2", p2.y);
+        line.setAttribute("stroke", "#FFC72C");
+        line.setAttribute("stroke-width", "2");
+        ticksGroup.appendChild(line);
+
+        const pText = polarToCartesian(cx, cy, r - 18, deg);
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", pText.x);
+        text.setAttribute("y", pText.y);
+        text.setAttribute("fill", "#FFC72C");
+        text.setAttribute("font-size", "9");
+        text.setAttribute("font-weight", "bold");
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "central");
+        text.textContent = `${deg}°`;
+        ticksGroup.appendChild(text);
+      }
+    }
+
+    /* ==========================================================================
+       5. MISSION CONTENT & LOGIC
+       ========================================================================== */
+
+    /* ---------- MISSION 1: Slicing & Equal Parts (Foundation) ---------- */
+    const mission1Data = [
+      {
+        question: "Cut the pizza into 4 EQUAL slices. What is the angle and percentage of EACH slice?",
+        slicesCount: 4,
+        options: [
+          { text: "Angle = 90°, Percentage = 25%", correct: true },
+          { text: "Angle = 90°, Percentage = 90%", correct: false, misconception: "MISCONCEPTION ALERT! Pupils often confuse angles and percentages directly ($90^\circ \neq 90\%$). Remember $360^\circ = 100\%$, so $90^\circ = 90/3.6 = 25\%$!" },
+          { text: "Angle = 25°, Percentage = 25%", correct: false, misconception: "MISCONCEPTION ALERT! Angles in a full circle must sum to 360°. Four 25° slices would only equal 100° total, leaving most of the pizza missing!" },
+          { text: "Angle = 40°, Percentage = 25%", correct: false, misconception: "Four 40° slices equal 160°, not 360°!" }
+        ],
+        explanation: "Correct! $360^\circ \div 4 = 90^\circ$ for each slice. Since $360^\circ$ represents $100\%$, $90^\circ$ represents $100\% \div 4 = 25\%$!"
+      },
+      {
+        question: "Cut the pizza into 10 EQUAL slices. What is the angle and percentage of EACH slice?",
+        slicesCount: 10,
+        options: [
+          { text: "Angle = 36°, Percentage = 10%", correct: true },
+          { text: "Angle = 10°, Percentage = 10%", correct: false, misconception: "MISCONCEPTION ALERT! If each slice were 10°, 10 slices would only be 100° total. A full pizza circle needs 360°!" },
+          { text: "Angle = 36°, Percentage = 36%", correct: false, misconception: "MISCONCEPTION ALERT! Don't copy the angle degree into the percentage! $36^\circ$ out of $360^\circ$ is $1/10$ of the pizza, which is $10\%$." },
+          { text: "Angle = 10°, Percentage = 36%", correct: false, misconception: "Incorrect angles and percentages." }
+        ],
+        explanation: "Brilliant! $360^\circ \div 10 = 36^\circ$ per slice. In percentages, $100\% \div 10 = 10\%$. So $36^\circ$ always equals $10\%$!"
+      },
+      {
+        question: "A pizza is cut into 2 halves ($180^\circ$ each). A customer says: 'My slice is 180%, so it's bigger than a whole pizza!' Are they correct?",
+        slicesCount: 2,
+        options: [
+          { text: "No! 180° is half the circle (50%), because 100% is 360°.", correct: true },
+          { text: "Yes! Because 180° is greater than 100.", correct: false, misconception: "MISCONCEPTION ALERT! Angles can go up to 360° in a circle, but percentage of a whole circle maxes out at 100%. $180^\circ$ is half of $360^\circ$, so it is $50\%$!" },
+          { text: "Yes! 180° means 180% of the pizza.", correct: false, misconception: "MISCONCEPTION ALERT! Angles and percentages use completely different scales ($360^\circ = 100\%$)." }
+        ],
+        explanation: "Spot on! $180^\circ$ is half of $360^\circ$. Half of $100\%$ is $50\%$. Percentages cannot exceed $100\%$ for a single whole pizza!"
+      }
+    ];
+
+    /* ---------- MISSION 2: Proportional Conversion Slider ---------- */
+    const mission2Data = [
+      {
+        type: 'slider_pct_to_deg',
+        targetPct: 20,
+        question: "A customer wants a Pepperoni slice that is exactly 20% of the pizza. Adjust the slider to set the EXACT sector angle in degrees!",
+        explanation: "Fantastic! To convert percentage to angle: multiply by 3.6 ($20 \times 3.6^\circ = 72^\circ$)."
+      },
+      {
+        type: 'slider_deg_to_pct',
+        targetDeg: 144,
+        question: "A slice has a sector angle of 144°. What percentage of the pizza is this slice?",
+        options: [
+          { text: "40%", correct: true },
+          { text: "144%", correct: false, misconception: "MISCONCEPTION ALERT! A percentage of a single pizza cannot be 144%! Divide the angle by 3.6: $144^\circ \div 3.6 = 40\%$." },
+          { text: "14.4%", correct: false, misconception: "Divide $144^\circ$ by $3.6^\circ$, not 10! $144 / 3.6 = 40\%$." },
+          { text: "72%", correct: false, misconception: "$72\%$ would be $259.2^\circ$!" }
+        ],
+        explanation: "Spot on! $144^\circ \div 3.6^\circ = 40\%$. Alternatively, $144^\circ / 360^\circ = 4/10 = 40\%$!"
+      },
+      {
+        type: 'formula_check',
+        question: "Which general formula converts ANY sector percentage ($P\%$) into sector angle ($A^\circ$)?",
+        options: [
+          { text: "Angle = Percentage × 3.6°", correct: true },
+          { text: "Angle = Percentage + 360°", correct: false, misconception: "Adding 360° would make angles huge and over 360°!" },
+          { text: "Angle = Percentage ÷ 3.6°", correct: false, misconception: "Dividing by 3.6 is used to convert Degrees to Percentages ($P = A / 3.6$), not Percentages to Degrees!" },
+          { text: "Angle = Percentage", correct: false, misconception: "MISCONCEPTION ALERT! Direct equality only works if a circle had 100 degrees, but a full circle has 360 degrees!" }
+        ],
+        explanation: "Exactly! Since $100\% = 360^\circ$, dividing both sides by 100 gives $1\% = 3.6^\circ$. Thus: $\\text{Angle} = \\text{Percentage} \times 3.6^\circ$!"
+      }
+    ];
+
+    /* ---------- MISSION 3: Misconception Busters ---------- */
+    const mission3Data = [
+      {
+        title: "Case File #101: The 45° Confusion",
+        scenario: "Pizzaiolo Tom says: 'I cut a slice with an angle of 45°. That means it's 45% of the total pizza!'",
+        question: "What is the misconception in Tom's statement?",
+        options: [
+          { text: "Tom assumed 1° = 1%. In reality, 45° is only 12.5% of the pizza because 45 / 3.6 = 12.5%.", correct: true },
+          { text: "Tom is correct because degrees and percentages are identical in pie charts.", correct: false, misconception: "MISCONCEPTION ALERT! Degrees go up to 360°, percentages go up to 100%. They are NOT identical!" },
+          { text: "Tom is wrong because 45° is equal to 90% of the pizza.", correct: false, misconception: "45° is smaller than 90°, so it cannot be 90%!" }
+        ],
+        explanation: "Case Solved! Tom fell for the Direct Equality Misconception ($1^\circ = 1\%$). $45^\circ \div 3.6^\circ = 12.5\%$!"
+      },
+      {
+        title: "Case File #102: The 100° Whole Circle Trap",
+        scenario: "Customer Lucy orders a Veggie pizza. She looks at a pie chart showing a 100° slice and claims: 'That slice is 100% of the pizza, so I get the whole pie!'",
+        question: "Why is Lucy's claim mathematically wrong?",
+        options: [
+          { text: "100° is only about 27.8% of a pizza, because a full pizza requires 360°, not 100°!", correct: true },
+          { text: "Lucy is correct because 100° equals 100%.", correct: false, misconception: "MISCONCEPTION ALERT! A full circle is 360°, not 100°!" },
+          { text: "Lucy is wrong because 100° is equal to 50% of a pizza.", correct: false, misconception: "50% of a pizza is 180°, not 100°!" }
+        ],
+        explanation: "Case Solved! Lucy confused $100^\circ$ with $100\%$. A $100^\circ$ sector is $100/3.6 \approx 27.8\%$ of the pizza!"
+      },
+      {
+        title: "Case File #103: The Overfilling Pie Chart",
+        scenario: "A delivery flyer shows 3 slices with angles: 180°, 120°, and 90°. The designer claims this makes 1 whole pizza.",
+        question: "Spot the mathematical impossibility in this pie chart!",
+        options: [
+          { text: "The angles sum to 390°, which exceeds a full circle (360°)! It equals 108.3%.", correct: true },
+          { text: "The angles sum to 100°, which is too small.", correct: false, misconception: "$180 + 120 + 90 = 390^\circ$, not $100^\circ$!" },
+          { text: "There is no mistake, pie charts can sum to any angle.", correct: false, misconception: "MISCONCEPTION ALERT! Every valid pie chart MUST sum to exactly 360° (100%)!" }
+        ],
+        explanation: "Case Solved! $180^\circ + 120^\circ + 90^\circ = 390^\circ$. A single circle cannot exceed $360^\circ$!"
+      }
+    ];
+
+    /* ---------- MISSION 4: Pie Chart Inspector (Fix Broken Charts) ---------- */
+    const mission4Data = [
+      {
+        question: "Inspector Task: Adjust Sector 3 (Meat Feast) so that the entire pie chart sums to 360° (100%). Currently: Pepperoni = 180° (50%), Veggie = 90° (25%). What must Meat Feast be?",
+        currentSlices: [
+          { label: 'Pepperoni', angle: 180, color: '#E11718' },
+          { label: 'Veggie', angle: 90, color: '#28A745' },
+          { label: 'Meat Feast', angle: 0, color: '#FFC72C', target: true }
+        ],
+        options: [
+          { text: "Meat Feast = 90° (25%)", correct: true },
+          { text: "Meat Feast = 25° (25%)", correct: false, misconception: "MISCONCEPTION ALERT! If Meat Feast is 25°, the total angle is $180+90+25 = 295^\circ$, leaving a missing gap of $65^\circ$!" },
+          { text: "Meat Feast = 100° (25%)", correct: false, misconception: "$180+90+100 = 370^\circ$, which overflows $360^\circ$!" }
+        ],
+        explanation: "Excellent! $360^\circ - (180^\circ + 90^\circ) = 90^\circ$. $90^\circ \div 3.6^\circ = 25\%$!"
+      },
+      {
+        question: "Inspector Task: A pie chart has 4 equal slices. If 3 slices total 270° (75%), what is the percentage of the remaining slice?",
+        options: [
+          { text: "90° = 25%", correct: true },
+          { text: "90° = 90%", correct: false, misconception: "MISCONCEPTION ALERT! Don't write 90%! $360^\circ - 270^\circ = 90^\circ$. In percentage: $100\% - 75\% = 25\%$." },
+          { text: "30° = 10%", correct: false, misconception: "Incorrect subtraction." }
+        ],
+        explanation: "Spot on! Remaining angle = $360^\circ - 270^\circ = 90^\circ$, which represents $100\% - 75\% = 25\%$!"
+      }
+    ];
+
+    /* ---------- MISSION 5: Master Pizzaiolo (Reasoning & Justification) ---------- */
+    const mission5Data = [
+      {
+        question: "Compare Two Pizzas: Small Pizza (200g total) and Giant Pizza (800g total). Both pizzas have a 90° Pepperoni slice. Which statement is TRUE?",
+        options: [
+          { text: "Both slices represent the same PERCENTAGE (25%) and ANGLE (90°), but the Giant slice has more MASS (200g vs 50g).", correct: true },
+          { text: "The Giant slice has a larger angle because it comes from a bigger pizza.", correct: false, misconception: "MISCONCEPTION ALERT! Sector angle measures rotation out of 360°, NOT physical size/radius! A 90° angle is always a quarter circle regardless of pizza size." },
+          { text: "The Small slice has a higher percentage because the pizza is smaller.", correct: false, misconception: "MISCONCEPTION ALERT! Percentage measures proportion of the whole pie. $90^\circ / 360^\circ = 25\%$ for BOTH pizzas!" }
+        ],
+        explanation: "Masterful Reasoning! Angles and percentages measure PROPORTIONS ($90^\circ = 25\%$), regardless of the physical size of the pizza!"
+      },
+      {
+        question: "Order Breakdown: Pizza Hut receives an order for 36 pizzas total. The pie chart shows: Pepperoni = 180°, Hawaiian = 90°, Cheese = 90°. How many INDIVIDUAL pizzas are Pepperoni?",
+        options: [
+          { text: "18 pizzas (50% of 36)", correct: true },
+          { text: "180 pizzas", correct: false, misconception: "MISCONCEPTION ALERT! 180° is the sector angle, not the number of pizzas! Convert angle to percentage ($180^\circ = 50\%$), then calculate $50\%$ of 36 pizzas = 18 pizzas." },
+          { text: "36 pizzas", correct: false, misconception: "36 is the total number of pizzas!" }
+        ],
+        explanation: "Outstanding! $180^\circ = 50\%$ of the pie chart. $50\%$ of 36 pizzas = 18 Pepperoni pizzas!"
+      }
+    ];
+
+    /* ==========================================================================
+       6. UI & GAMEPLAY CONTROLLER
+       ========================================================================== */
+
+    function initGame() {
+      state.score = 0;
+      state.lives = 5;
+      state.currentMission = 1;
+      state.currentSubQuestion = 0;
+      updateHeaderStats();
+      loadMission(1, 0);
+
+      renderProtractorTicks();
+
+      // Event Listeners
+      document.getElementById('soundBtn').onclick = () => {
+        sound.muted = !sound.muted;
+        document.getElementById('soundBtn').textContent = sound.muted ? '🔇' : '🔊';
+      };
+
+      document.getElementById('restartBtn').onclick = resetGame;
+      document.getElementById('modalRestartBtn').onclick = () => {
+        document.getElementById('victoryModal').classList.remove('active');
+        resetGame();
+      };
+
+      document.getElementById('protractorToggleBtn').onclick = () => {
+        state.showProtractor = !state.showProtractor;
+        const box = document.getElementById('pizzaDisplayBox');
+        if (state.showProtractor) box.classList.add('show-protractor');
+        else box.classList.remove('show-protractor');
+      };
+
+      // Mission navigation click handlers
+      document.querySelectorAll('.mission-step-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          const m = parseInt(btn.getAttribute('data-mission'));
+          if (m <= state.currentMission) {
+            loadMission(m, 0);
+          }
+        };
+      });
+    }
+
+    function updateHeaderStats() {
+      document.getElementById('scoreDisplay').textContent = state.score;
+      const livesBox = document.getElementById('livesDisplay');
+      livesBox.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        const span = document.createElement('span');
+        span.className = 'life-icon' + (i >= state.lives ? ' lost' : '');
+        span.textContent = '🍕';
+        livesBox.appendChild(span);
+      }
+    }
+
+    function resetGame() {
+      state.score = 0;
+      state.lives = 5;
+      state.currentMission = 1;
+      state.currentSubQuestion = 0;
+      updateHeaderStats();
+      loadMission(1, 0);
+      mascot.setMood('happy');
+      mascot.speak("Game reset! Let's tackle these pie chart missions again!");
+    }
+
+    function updateMissionNavUI() {
+      document.querySelectorAll('.mission-step-btn').forEach(btn => {
+        const m = parseInt(btn.getAttribute('data-mission'));
+        btn.classList.remove('active', 'completed');
+        if (m === state.currentMission) btn.classList.add('active');
+        else if (m < state.currentMission) btn.classList.add('completed');
+      });
+    }
+
+    function loadMission(missionNum, subIdx = 0) {
+      state.currentMission = missionNum;
+      state.currentSubQuestion = subIdx;
+      updateMissionNavUI();
+
+      const taskBox = document.getElementById('taskBox');
+      const feedbackBanner = document.getElementById('feedbackBanner');
+      feedbackBanner.style.display = 'none';
+
+      document.getElementById('missionBadge').textContent = `MISSION ${missionNum} OF 5`;
+
+      if (missionNum === 1) {
+        setupMission1(subIdx);
+      } else if (missionNum === 2) {
+        setupMission2(subIdx);
+      } else if (missionNum === 3) {
+        setupMission3(subIdx);
+      } else if (missionNum === 4) {
+        setupMission4(subIdx);
+      } else if (missionNum === 5) {
+        setupMission5(subIdx);
+      }
+    }
+
+    /* ---------- MISSION 1 BUILDER ---------- */
+    function setupMission1(subIdx) {
+      const data = mission1Data[subIdx];
+      document.getElementById('missionTitle').textContent = `Slice & Match (${subIdx + 1}/${mission1Data.length})`;
+      mascot.speak("Observe the pizza slices! Remember: the sum of all angles in a pie chart is ALWAYS 360°, which equals 100%!");
+
+      // Render Pizza
+      const slicesCount = data.slicesCount;
+      const sliceAngle = 360 / slicesCount;
+      const slices = [];
+      for (let i = 0; i < slicesCount; i++) {
+        slices.push({ angle: sliceAngle });
+      }
+      renderPizzaSlices(slices);
+
+      // Task Controls UI
+      const taskBox = document.getElementById('taskBox');
+      taskBox.innerHTML = `
+        <div class="question-card">
+          <h3>Question ${subIdx + 1}:</h3>
+          <p>${data.question}</p>
+        </div>
+        <div class="concept-box">
+          <span class="icon">💡</span>
+          <span><strong>Key Rule:</strong> Total Circle Angle = 360° = 100%.</span>
+        </div>
+        <div class="options-grid" id="optionsGrid">
+          ${data.options.map((opt, i) => `
+            <button class="option-btn" data-idx="${i}">
+              <span>${String.fromCharCode(65 + i)}.</span>
+              <span>${opt.text}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+
+      bindOptions(data.options, data.explanation, () => {
+        if (subIdx + 1 < mission1Data.length) loadMission(1, subIdx + 1);
+        else loadMission(2, 0);
+      });
+    }
+
+    /* ---------- MISSION 2 BUILDER ---------- */
+    function setupMission2(subIdx) {
+      const data = mission2Data[subIdx];
+      document.getElementById('missionTitle').textContent = `Angle-Percent Converter (${subIdx + 1}/${mission2Data.length})`;
+
+      const taskBox = document.getElementById('taskBox');
+
+      if (data.type === 'slider_pct_to_deg') {
+        mascot.speak(`Set the pizza slice to exactly ${data.targetPct}%! Use the formula: Angle = Percentage × 3.6°.`);
+
+        // Initial slice rendering at 10%
+        let currentAngle = 36;
+        renderPizzaSlices([
+          { angle: currentAngle, color: '#E11718', showLabel: true, labelText: `${currentAngle}° (${currentAngle/3.6}%)` },
+          { angle: 360 - currentAngle, color: '#333333', showLabel: false }
+        ]);
+
+        taskBox.innerHTML = `
+          <div class="question-card">
+            <h3>Interactive Slider Challenge:</h3>
+            <p>${data.question}</p>
+          </div>
+          <div class="control-group">
+            <div class="control-label">Adjust Percentage Slider:</div>
+            <div class="slider-row">
+              <input type="range" id="angleSlider" min="5" max="100" step="5" value="10">
+              <span class="value-pill" id="sliderValDisplay">10%</span>
+            </div>
+            <div style="font-size: 0.9rem; color: var(--ph-gold); margin-top: 5px;">
+              Calculated Sector Angle: <strong id="calculatedDeg">36°</strong>
+            </div>
+          </div>
+          <button class="btn-submit" id="btnSubmitSlider">SUBMIT ANSWER</button>
+        `;
+
+        const slider = document.getElementById('angleSlider');
+        slider.oninput = (e) => {
+          const pct = parseInt(e.target.value);
+          const deg = Math.round(pct * 3.6);
+          document.getElementById('sliderValDisplay').textContent = `${pct}%`;
+          document.getElementById('calculatedDeg').textContent = `${deg}°`;
+
+          renderPizzaSlices([
+            { angle: deg, color: '#E11718', showLabel: true, labelText: `${deg}° (${pct}%)` },
+            { angle: 360 - deg, color: '#333333', showLabel: false }
+          ]);
+        };
+
+        document.getElementById('btnSubmitSlider').onclick = () => {
+          const chosenPct = parseInt(slider.value);
+          if (chosenPct === data.targetPct) {
+            handleAnswerResult(true, data.explanation, () => loadMission(2, subIdx + 1));
+          } else {
+            handleAnswerResult(false, `MISCONCEPTION ALERT! You set ${chosenPct}% (${Math.round(chosenPct * 3.6)}°). For 20%, multiply by 3.6: $20 \\times 3.6 = 72^\\circ$.`, null);
+          }
+        };
+
+      } else {
+        // Option based sub-question
+        mascot.speak("Convert between degrees and percentages using $1\\% = 3.6^\\circ$!");
+
+        let angle = data.targetDeg || 90;
+        renderPizzaSlices([
+          { angle: angle, color: '#FFC72C', showLabel: true, labelText: `${angle}°` },
+          { angle: 360 - angle, color: '#333333', showLabel: false }
+        ]);
+
+        taskBox.innerHTML = `
+          <div class="question-card">
+            <h3>Question ${subIdx + 1}:</h3>
+            <p>${data.question}</p>
+          </div>
+          <div class="options-grid">
+            ${data.options.map((opt, i) => `
+              <button class="option-btn" data-idx="${i}">
+                <span>${String.fromCharCode(65 + i)}.</span>
+                <span>${opt.text}</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+
+        bindOptions(data.options, data.explanation, () => {
+          if (subIdx + 1 < mission2Data.length) loadMission(2, subIdx + 1);
+          else loadMission(3, 0);
+        });
+      }
+    }
+
+    /* ---------- MISSION 3 BUILDER ---------- */
+    function setupMission3(subIdx) {
+      const data = mission3Data[subIdx];
+      document.getElementById('missionTitle').textContent = `Misconception Busters (${subIdx + 1}/${mission3Data.length})`;
+      mascot.speak("Detective time! Identify the misconception in this customer or staff statement!");
+
+      renderPizzaSlices([
+        { angle: 120, color: '#E11718' },
+        { angle: 120, color: '#FFC72C' },
+        { angle: 120, color: '#28A745' }
+      ]);
+
+      const taskBox = document.getElementById('taskBox');
+      taskBox.innerHTML = `
+        <div class="question-card" style="border-left-color: var(--ph-red);">
+          <h3 style="color: var(--ph-red);">${data.title}</h3>
+          <p style="font-style: italic; margin-bottom: 8px; color: #fff;">"${data.scenario}"</p>
+          <p><strong>Task:</strong> ${data.question}</p>
+        </div>
+        <div class="options-grid">
+          ${data.options.map((opt, i) => `
+            <button class="option-btn" data-idx="${i}">
+              <span>${String.fromCharCode(65 + i)}.</span>
+              <span>${opt.text}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+
+      bindOptions(data.options, data.explanation, () => {
+        if (subIdx + 1 < mission3Data.length) loadMission(3, subIdx + 1);
+        else loadMission(4, 0);
+      });
+    }
+
+    /* ---------- MISSION 4 BUILDER ---------- */
+    function setupMission4(subIdx) {
+      const data = mission4Data[subIdx];
+      document.getElementById('missionTitle').textContent = `Pie Chart Inspector (${subIdx + 1}/${mission4Data.length})`;
+      mascot.speak("Inspect the broken pie chart! All sectors MUST sum to exactly 360° (100%).");
+
+      renderPizzaSlices(data.currentSlices.map(s => ({
+        angle: s.angle || 30,
+        color: s.color,
+        labelText: s.angle > 0 ? `${s.label}: ${s.angle}°` : `${s.label}: ?`
+      })));
+
+      const taskBox = document.getElementById('taskBox');
+      taskBox.innerHTML = `
+        <div class="question-card">
+          <h3>Inspector Challenge ${subIdx + 1}:</h3>
+          <p>${data.question}</p>
+        </div>
+        <div class="options-grid">
+          ${data.options.map((opt, i) => `
+            <button class="option-btn" data-idx="${i}">
+              <span>${String.fromCharCode(65 + i)}.</span>
+              <span>${opt.text}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+
+      bindOptions(data.options, data.explanation, () => {
+        if (subIdx + 1 < mission4Data.length) loadMission(4, subIdx + 1);
+        else loadMission(5, 0);
+      });
+    }
+
+    /* ---------- MISSION 5 BUILDER ---------- */
+    function setupMission5(subIdx) {
+      const data = mission5Data[subIdx];
+      document.getElementById('missionTitle').textContent = `Master Pizzaiolo (${subIdx + 1}/${mission5Data.length})`;
+      mascot.speak("Final test! Apply mathematical reasoning and justification to complete your certification!");
+
+      renderPizzaSlices([
+        { angle: 180, color: '#E11718', labelText: '180° (50%)' },
+        { angle: 90, color: '#FFC72C', labelText: '90° (25%)' },
+        { angle: 90, color: '#28A745', labelText: '90° (25%)' }
+      ]);
+
+      const taskBox = document.getElementById('taskBox');
+      taskBox.innerHTML = `
+        <div class="question-card">
+          <h3>Master Scenario ${subIdx + 1}:</h3>
+          <p>${data.question}</p>
+        </div>
+        <div class="options-grid">
+          ${data.options.map((opt, i) => `
+            <button class="option-btn" data-idx="${i}">
+              <span>${String.fromCharCode(65 + i)}.</span>
+              <span>${opt.text}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+
+      bindOptions(data.options, data.explanation, () => {
+        if (subIdx + 1 < mission5Data.length) loadMission(5, subIdx + 1);
+        else showVictoryScreen();
+      });
+    }
+
+    /* ---------- COMMON OPTION BINDING & ANSWER HANDLING ---------- */
+    function bindOptions(options, explanation, onNext) {
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(btn => {
+        btn.onclick = () => {
+          buttons.forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          const idx = parseInt(btn.getAttribute('data-idx'));
+          const chosen = options[idx];
+
+          if (chosen.correct) {
+            handleAnswerResult(true, explanation, onNext);
+          } else {
+            handleAnswerResult(false, chosen.misconception || "Incorrect. Think about the relation 360° = 100%!", null);
+          }
+        };
+      });
+    }
+
+    function handleAnswerResult(isCorrect, text, onNext) {
+      const banner = document.getElementById('feedbackBanner');
+      const title = document.getElementById('feedbackTitle');
+      const textEl = document.getElementById('feedbackText');
+      const nextBtn = document.getElementById('btnNext');
+
+      banner.style.display = 'block';
+      banner.className = 'feedback-banner ' + (isCorrect ? 'correct' : 'incorrect');
+
+      if (isCorrect) {
+        sound.playCorrect();
+        state.score += 100;
+        updateHeaderStats();
+        mascot.setMood('celebrating');
+        mascot.speak("Awesome job! You nailed the mathematical reasoning!");
+
+        title.innerHTML = "✅ CORRECT!";
+        textEl.innerHTML = text;
+
+        if (onNext) {
+          nextBtn.style.display = 'inline-block';
+          nextBtn.onclick = () => {
+            banner.style.display = 'none';
+            onNext();
+          };
+        } else {
+          nextBtn.style.display = 'none';
+        }
+      } else {
+        sound.playWrong();
+        state.lives--;
+        updateHeaderStats();
+        mascot.setMood('shocked');
+        mascot.speak("Oh no! Let's examine this misconception carefully.");
+
+        title.innerHTML = "❌ MISCONCEPTION DETECTED!";
+        textEl.innerHTML = text;
+        nextBtn.style.display = 'none';
+
+        if (state.lives <= 0) {
+          setTimeout(() => {
+            alert("Game Over! Don't worry, practice makes perfect. Restarting missions...");
+            resetGame();
+          }, 1500);
+        }
+      }
+    }
+
+    function showVictoryScreen() {
+      sound.playVictory();
+      mascot.setMood('celebrating');
+      mascot.speak("CONGRATULATIONS! You are officially a Master Pizzaiolo of Pie Charts and Percentages!");
+
+      document.getElementById('finalScoreVal').textContent = state.score;
+      document.getElementById('finalLivesVal').textContent = `${state.lives}/5`;
+      document.getElementById('victoryModal').classList.add('active');
+    }
+
+    // Initialize on page load
+    window.onload = initGame;
+  </script>
+</body>
+</html>
